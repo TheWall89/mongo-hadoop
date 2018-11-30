@@ -111,6 +111,8 @@ public final class MongoConfigUtil {
     public static final String INPUT_SKIP = "mongo.input.skip";
     public static final String INPUT_LAZY_BSON = "mongo.input.lazy_bson";
 
+    public static final String INPUT_PIPELINE = "mongo.input.pipeline";
+
 
     //Settings specific to bson reading/writing.
     public static final String BSON_SPLITS_PATH = "bson.split.splits_path";
@@ -716,6 +718,23 @@ public final class MongoConfigUtil {
 
     public static DBObject getQuery(final Configuration conf) {
         return getDBObject(conf, INPUT_QUERY);
+    }
+
+    /**
+     * Set the pipeline for the Job.
+     * @param conf the Configuration
+     * @param pipeline the aggregate operations pipeline
+     */
+    public static void setPipeline(final Configuration conf, final String pipeline) {
+        setJSON(conf, INPUT_PIPELINE, pipeline);
+    }
+
+    public static void setPipeline(final Configuration conf, final DBObject pipeline) {
+        setDBObject(conf, INPUT_PIPELINE, pipeline);
+    }
+
+    public static DBObject getPipeline(final Configuration conf) {
+        return getDBObject(conf, INPUT_PIPELINE);
     }
 
     public static void setFields(final Configuration conf, final String fields) {
