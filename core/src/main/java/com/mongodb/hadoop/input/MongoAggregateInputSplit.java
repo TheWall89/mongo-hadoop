@@ -1,13 +1,6 @@
 package com.mongodb.hadoop.input;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.Bytes;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.MongoClientURI;
-import com.mongodb.MongoURI;
+import com.mongodb.*;
 import com.mongodb.hadoop.util.MongoConfigUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,12 +18,14 @@ import org.bson.BasicBSONEncoder;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 
 public class MongoAggregateInputSplit extends InputSplit implements Writable,
         org.apache.hadoop.mapred.InputSplit {
 
-    private static final Log LOG = LogFactory.getLog(MongoInputSplit.class);
+    private static final Log LOG = LogFactory.getLog(
+            MongoAggregateInputSplit.class);
     //CHECKSTYLE:OFF
     protected MongoClientURI inputURI;
     protected MongoClientURI authURI;
@@ -46,6 +41,9 @@ public class MongoAggregateInputSplit extends InputSplit implements Writable,
     protected transient DBCursor cursor;
     protected transient DBCollection coll;
 
+    protected DBObject pipeline;
+    protected AggregationOptions aggregationOptions;
+
     protected transient BSONEncoder _bsonEncoder = new BasicBSONEncoder();
     protected transient BSONDecoder _bsonDecoder = new BasicBSONDecoder();
     //CHECKSTYLE:ON
@@ -53,7 +51,7 @@ public class MongoAggregateInputSplit extends InputSplit implements Writable,
     public MongoAggregateInputSplit() {
     }
 
-    public MongoAggregateInputSplit(final MongoInputSplit other) {
+    public MongoAggregateInputSplit(final MongoAggregateInputSplit other) {
         setFields(other.getFields());
         setAuthURI(other.getAuthURI());
         setInputURI(other.getInputURI());
@@ -65,6 +63,8 @@ public class MongoAggregateInputSplit extends InputSplit implements Writable,
         setSort(other.getSort());
         setLimit(other.getLimit());
         setSkip(other.getSkip());
+        setPipeline(other.getPipeline());
+        setAggregationOptions(other.getAggregationOptions());
     }
 
     public MongoAggregateInputSplit(final Configuration conf) {
@@ -79,7 +79,37 @@ public class MongoAggregateInputSplit extends InputSplit implements Writable,
         setSort(MongoConfigUtil.getSort(conf));
         setLimit(MongoConfigUtil.getLimit(conf));
         setSkip(MongoConfigUtil.getSkip(conf));
+        setPipeline(MongoConfigUtil.getPipeline(conf));
+        setAggregationOptions(
+                AggregationOptions
+                        .builder()
+                        .allowDiskUse(
+                                MongoConfigUtil.getAggregateAllowDiskUse(conf))
+                        .batchSize(MongoConfigUtil.getAggregateBatchSize(conf))
+                        .bypassDocumentValidation(
+                                MongoConfigUtil.getAggregateBypassDocumentValidation(
+                                        conf))
+                        .maxTime(MongoConfigUtil.getAggregateMaxTime(conf),
+                                 TimeUnit.MILLISECONDS)
+                        .build());
     }
+
+    public DBObject getPipeline() {
+        return pipeline;
+    }
+
+    public void setPipeline(DBObject pipeline) {
+        this.pipeline = pipeline;
+    }
+
+    public AggregationOptions getAggregationOptions() {
+        return aggregationOptions;
+    }
+
+    public void setAggregationOptions(AggregationOptions aggregationOptions) {
+        this.aggregationOptions = aggregationOptions;
+    }
+
 
     public void setInputURI(final MongoClientURI inputURI) {
         this.inputURI = inputURI;

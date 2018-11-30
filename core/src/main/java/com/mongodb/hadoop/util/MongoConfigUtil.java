@@ -113,6 +113,12 @@ public final class MongoConfigUtil {
 
     public static final String INPUT_PIPELINE = "mongo.input.pipeline";
 
+    // Settings specific to aggregation.
+    public static final String AGGREGATE_ALLOW_DISK_USE = "mongo.aggregate.allow_disk_use";
+    public static final String AGGREGATE_BATCH_SIZE = "mongo.aggregate.batch_size";
+    public static final String AGGREGATE_BYPASS_DOCUMENT_VALIDATION = "mongo.aggregate.bypass_document_validation";
+    public static final String AGGREGATE_MAX_TIME = "mongo.aggregate.max_time";
+
 
     //Settings specific to bson reading/writing.
     public static final String BSON_SPLITS_PATH = "bson.split.splits_path";
@@ -720,23 +726,6 @@ public final class MongoConfigUtil {
         return getDBObject(conf, INPUT_QUERY);
     }
 
-    /**
-     * Set the pipeline for the Job.
-     * @param conf the Configuration
-     * @param pipeline the aggregate operations pipeline
-     */
-    public static void setPipeline(final Configuration conf, final String pipeline) {
-        setJSON(conf, INPUT_PIPELINE, pipeline);
-    }
-
-    public static void setPipeline(final Configuration conf, final DBObject pipeline) {
-        setDBObject(conf, INPUT_PIPELINE, pipeline);
-    }
-
-    public static DBObject getPipeline(final Configuration conf) {
-        return getDBObject(conf, INPUT_PIPELINE);
-    }
-
     public static void setFields(final Configuration conf, final String fields) {
         setJSON(conf, INPUT_FIELDS, fields);
     }
@@ -1165,4 +1154,55 @@ public final class MongoConfigUtil {
         }
         return properties;
     }
+
+    /**
+     * Set the pipeline for the Job.
+     * @param conf the Configuration
+     * @param pipeline the aggregate operations pipeline
+     */
+    public static void setPipeline(final Configuration conf, final String pipeline) {
+        setJSON(conf, INPUT_PIPELINE, pipeline);
+    }
+
+    public static void setPipeline(final Configuration conf, final DBObject pipeline) {
+        setDBObject(conf, INPUT_PIPELINE, pipeline);
+    }
+
+    public static DBObject getPipeline(final Configuration conf) {
+        return getDBObject(conf, INPUT_PIPELINE);
+    }
+
+    public static boolean getAggregateAllowDiskUse(final Configuration conf){
+        return conf.getBoolean(AGGREGATE_ALLOW_DISK_USE, true);
+    }
+
+    public static void setAggregateAllowDiskUse(final Configuration conf, final Boolean value){
+        conf.setBoolean(AGGREGATE_ALLOW_DISK_USE, value);
+    }
+
+    public static int getAggregateBatchSize(final Configuration conf) {
+        return conf.getInt(AGGREGATE_BATCH_SIZE, 0);
+    }
+
+    public static void setAggregateBatchSize(final Configuration conf, final Integer value) {
+        conf.setInt(AGGREGATE_BATCH_SIZE, value);
+    }
+
+    public static boolean getAggregateBypassDocumentValidation(final Configuration conf) {
+        return conf.getBoolean(AGGREGATE_BYPASS_DOCUMENT_VALIDATION, false);
+    }
+
+    public static void setAggregateBypassDocumentValidation(final Configuration conf, final Boolean value){
+        conf.setBoolean(AGGREGATE_BYPASS_DOCUMENT_VALIDATION, value);
+    }
+
+    public static long getAggregateMaxTime(final Configuration conf) {
+        return conf.getLong(AGGREGATE_MAX_TIME, 0);
+    }
+
+    public static void setAggregateMaxTime(final Configuration conf, final Long value){
+        conf.setLong(AGGREGATE_MAX_TIME, value);
+    }
+
+
 }
