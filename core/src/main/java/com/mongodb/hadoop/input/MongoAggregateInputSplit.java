@@ -18,6 +18,7 @@ import org.bson.BasicBSONEncoder;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -41,7 +42,7 @@ public class MongoAggregateInputSplit extends InputSplit implements Writable,
     protected transient DBCursor cursor;
     protected transient DBCollection coll;
 
-    protected DBObject pipeline;
+    protected List<DBObject> pipeline;
     protected AggregationOptions aggregationOptions;
 
     protected transient BSONEncoder _bsonEncoder = new BasicBSONEncoder();
@@ -94,11 +95,11 @@ public class MongoAggregateInputSplit extends InputSplit implements Writable,
                         .build());
     }
 
-    public DBObject getPipeline() {
+    public List<DBObject> getPipeline() {
         return pipeline;
     }
 
-    public void setPipeline(DBObject pipeline) {
+    public void setPipeline(List<DBObject> pipeline) {
         this.pipeline = pipeline;
     }
 
@@ -109,7 +110,6 @@ public class MongoAggregateInputSplit extends InputSplit implements Writable,
     public void setAggregationOptions(AggregationOptions aggregationOptions) {
         this.aggregationOptions = aggregationOptions;
     }
-
 
     public void setInputURI(final MongoClientURI inputURI) {
         this.inputURI = inputURI;

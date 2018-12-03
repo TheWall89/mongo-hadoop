@@ -45,14 +45,8 @@ import org.apache.hadoop.mapreduce.Reducer;
 import java.io.IOException;
 import java.net.URI;
 import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Properties;
 
 /**
  * Configuration helper tool for MongoDB related Map/Reduce jobs
@@ -1160,16 +1154,29 @@ public final class MongoConfigUtil {
      * @param conf the Configuration
      * @param pipeline the aggregate operations pipeline
      */
-    public static void setPipeline(final Configuration conf, final String pipeline) {
-        setJSON(conf, INPUT_PIPELINE, pipeline);
+    public static void setPipeline(final Configuration conf,
+                                   final List<DBObject> pipeline) {
+        conf.set(INPUT_PIPELINE, JSON.serialize(pipeline));
     }
 
-    public static void setPipeline(final Configuration conf, final DBObject pipeline) {
-        setDBObject(conf, INPUT_PIPELINE, pipeline);
-    }
-
-    public static DBObject getPipeline(final Configuration conf) {
-        return getDBObject(conf, INPUT_PIPELINE);
+    public static List<DBObject> getPipeline(final Configuration conf) {
+        try {
+            final String json = conf.get(INPUT_PIPELINE);
+            final DBObject obj = (DBObject) JSON.parse(json);
+            if (obj == null) {
+                return new ArrayList<DBObject>();
+            } else {
+                List<DBObject> listObj = new ArrayList<DBObject>();
+                for (String s : obj.keySet()) {
+                    listObj.add((DBObject) obj.get(s));
+                }
+                return listObj;
+            }
+        } catch (final Exception e) {
+            throw new IllegalArgumentException(
+                    "Provided JSON String is not representable/parseable as a list of DBObject.",
+                    e);
+        }
     }
 
     public static boolean getAggregateAllowDiskUse(final Configuration conf){
